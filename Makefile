@@ -1,3 +1,5 @@
+all: client server
+
 client : client.o
 	cc -o client/bin/client client.o
 
