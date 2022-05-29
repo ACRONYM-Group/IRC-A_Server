@@ -8,7 +8,13 @@
  
 #define CLIENT_QUEUE_LEN 10
 #define SERVER_PORT 7002
- 
+
+struct Messages
+{
+	char Username[16];
+	char Message[256];
+};
+
 int main(void)
 {
 	int listen_sock_fd = -1, client_sock_fd = -1;
@@ -16,7 +22,7 @@ int main(void)
 	socklen_t client_addr_len;
 	char str_addr[INET6_ADDRSTRLEN];
 	int ret, flag;
-	char ch;
+	struct Messages Message1;
  
 	/* Create socket for listening (client requests) */
 	listen_sock_fd = socket(AF_INET6, SOCK_STREAM, IPPROTO_TCP);
@@ -73,7 +79,7 @@ int main(void)
 				ntohs(client_addr.sin6_port));
  
 		/* Wait for data from client */
-		ret = read(client_sock_fd, &ch, 1);
+		ret = read(client_sock_fd, Message1.Username, 16);
 		if (ret == -1) {
 			perror("read()");
 			close(client_sock_fd);
@@ -81,10 +87,15 @@ int main(void)
 		}
  
 		/* Do very useful thing with received data :-) */
-		ch++;
+		printf("Data recieved from client: \"");
+		for(int i = 0; Message1.Username[i] != '\0'; i++)
+		{
+			printf("%c", Message1.Username[i]);
+		}
+		printf("\"\n");
  
 		/* Send response to client */
-		ret = write(client_sock_fd, &ch, 1);
+		ret = write(client_sock_fd, Message1.Username, 16);
 		if (ret == -1) {
 			perror("write()");
 			close(client_sock_fd);

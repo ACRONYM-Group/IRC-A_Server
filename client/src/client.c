@@ -4,15 +4,24 @@
 #include <stdlib.h>
 #include <sys/socket.h>
 #include <unistd.h>
- 
+#include <string.h>
+
 #define SERVER_PORT 7002
+
+struct Messages
+{
+	char Username[16];
+	char Message[256];
+};
  
 int main(int argc, char *argv[])
 {
 	int sock_fd = -1;
 	struct sockaddr_in6 server_addr;
 	int ret;
-	char ch = 'a';
+	struct Messages SendMessage;
+	struct Messages RecieveMessage;
+	strcpy( SendMessage.Username, "Pookachu");
  
 	/* Arguments could be used in getaddrinfo() to get e.g. IP of server */
 	(void)argc;
@@ -39,7 +48,7 @@ int main(int argc, char *argv[])
 	}
  
 	/* Send data to server */
-	ret = write(sock_fd, &ch, 1);
+	ret = write(sock_fd, SendMessage.Username, 16);
 	if (ret == -1) {
 		perror("write");
 		close(sock_fd);
@@ -47,14 +56,14 @@ int main(int argc, char *argv[])
 	}
  
 	/* Wait for data from server */
-	ret = read(sock_fd, &ch, 1);
+	ret = read(sock_fd, RecieveMessage.Username, 16);
 	if (ret == -1) {
 		perror("read()");
 		close(sock_fd);
 		return EXIT_FAILURE;
 	}
  
-	printf("Received %c from server\n", ch);
+	printf("Received %s from server\n", RecieveMessage.Username);
  
 	/* DO TCP teardown */
 	ret = close(sock_fd);
