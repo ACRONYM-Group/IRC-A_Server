@@ -13,4 +13,4 @@ server.o : server/src/server.c
 	cc -c server/src/server.c
 
 clean :
-	rm client/bin/client server/bin/server client.o server
+	rm client/bin/client server/bin/server client.o server.o
