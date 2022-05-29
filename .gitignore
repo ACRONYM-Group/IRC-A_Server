@@ -1,3 +1,6 @@
+# Editor Save files
+*.swp
+
 # Prerequisites
 *.d
 
