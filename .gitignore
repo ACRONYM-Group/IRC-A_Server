@@ -1,6 +1,10 @@
 # Editor Save files
 *.swp
 
+# Binary directories/binaries
+client/bin/
+server/bin/
+
 # Prerequisites
 *.d
 
