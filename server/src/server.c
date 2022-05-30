@@ -5,7 +5,8 @@
 #include <sys/types.h>
 #include <unistd.h>
 #include <netinet/in.h>
- 
+#include <string.h>
+
 #define CLIENT_QUEUE_LEN 10
 #define SERVER_PORT 7002
 
@@ -22,8 +23,8 @@ int main(void)
 	socklen_t client_addr_len;
 	char str_addr[INET6_ADDRSTRLEN];
 	int ret, flag;
-	struct Messages Message1;
- 
+	struct Messages recievedMessage;
+
 	/* Create socket for listening (client requests) */
 	listen_sock_fd = socket(AF_INET6, SOCK_STREAM, IPPROTO_TCP);
 	if(listen_sock_fd == -1) {
@@ -77,25 +78,26 @@ int main(void)
 		printf("New connection from: %s:%d ...\n",
 				str_addr,
 				ntohs(client_addr.sin6_port));
- 
+
 		/* Wait for data from client */
-		ret = read(client_sock_fd, Message1.Username, 16);
+		char *messageBuffer = (char *) malloc(sizeof(char)*272);
+		ret = read(client_sock_fd, messageBuffer, 272);
 		if (ret == -1) {
 			perror("read()");
 			close(client_sock_fd);
 			continue;
 		}
- 
-		/* Do very useful thing with received data :-) */
-		printf("Data recieved from client: \"");
-		for(int i = 0; Message1.Username[i] != '\0'; i++)
-		{
-			printf("%c", Message1.Username[i]);
-		}
-		printf("\"\n");
+
+		/* Seperate out data from buffer */
+		memcpy(recievedMessage.Username, messageBuffer, sizeof(char)*16);
+		memcpy(recievedMessage.Message, &messageBuffer[16], sizeof(char)*256);
+		free(messageBuffer); // free buffer 
+
+		/* Do very useful thing with received data */
+		printf("%s: %s\n", recievedMessage.Username, recievedMessage.Message);
  
 		/* Send response to client */
-		ret = write(client_sock_fd, Message1.Username, 16);
+		ret = write(client_sock_fd, recievedMessage.Username, sizeof(char)*16);
 		if (ret == -1) {
 			perror("write()");
 			close(client_sock_fd);
